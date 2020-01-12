@@ -47,6 +47,8 @@ def create_app():
     app.config["SECRET_KEY"] = "passwordkey"
     # 查询时在控制台打印出原始SQL语句
     app.config['SQLALCHEMY_ECHO'] = True
+    # 返回数据支持中文
+    app.config['JSON_AS_ASCII'] = False
     # 数据库的初始化
     # 将app程序与数据库绑定起来
     db.app = app
