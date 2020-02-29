@@ -1,0 +1,224 @@
+drop table if exists admin;
+
+drop table if exists bus;
+
+drop table if exists bus_passenger;
+
+drop table if exists passenger;
+
+drop table if exists route;
+
+drop table if exists route_station;
+
+drop table if exists station;
+
+drop table if exists station_passenger;
+
+drop table if exists user;
+
+drop table if exists user_bus;
+
+drop table if exists user_passenger;
+
+drop table if exists user_station;
+
+/*==============================================================*/
+/* Table: admin                                                 */
+/*==============================================================*/
+create table admin
+(
+   user_id              int comment '用户编号',
+   delete_type          smallint not null default 0 comment '(0:正常，1:删除)'
+);
+
+/*==============================================================*/
+/* Table: bus                                                   */
+/*==============================================================*/
+create table bus
+(
+   bus_id               int not null auto_increment,
+   route_id             int,
+   user_id              int comment '用户编号',
+   type_id              int not null,
+   delete_type          smallint not null default 0 comment '(0:正常，1:删除)',
+   permit_passengers    int not null,
+   start_date           date,
+   belong_company       varchar(30),
+   primary key (bus_id)
+);
+
+alter table bus comment '公交车（公交车id、公交车类型、准载客数、司机id、投运时间、运行路线、所属公司）';
+
+/*==============================================================*/
+/* Table: bus_passenger                                         */
+/*==============================================================*/
+create table bus_passenger
+(
+   bus_id               int,
+   passenger_id         int,
+   timestamp            timestamp
+);
+
+/*==============================================================*/
+/* Table: passenger                                             */
+/*==============================================================*/
+create table passenger
+(
+   passenger_id         int not null auto_increment,
+   delete_type          smallint not null default 0 comment '(0:正常，1:删除)',
+   sex                  tinyint,
+   age_level            smallint,
+   is_glasses           tinyint,
+   is_hat               tinyint,
+   is_mask              tinyint,
+   is_lipstick          tinyint,
+   face_expression      smallint,
+   future_matrix        text,
+   primary key (passenger_id)
+);
+
+alter table passenger comment '乘客（乘客id、性别、年龄段、是否戴眼镜、是否戴帽子、是否涂口红、是否戴口罩、面部表情、特征矩阵）';
+
+/*==============================================================*/
+/* Table: route                                                 */
+/*==============================================================*/
+create table route
+(
+   route_id             int not null,
+   route_name           char(20),
+   primary key (route_id)
+);
+
+/*==============================================================*/
+/* Table: route_station                                         */
+/*==============================================================*/
+create table route_station
+(
+   route_id             int,
+   station_id           int,
+   "order"              smallint
+);
+
+/*==============================================================*/
+/* Table: station                                               */
+/*==============================================================*/
+create table station
+(
+   station_id           int not null auto_increment,
+   station_name         varchar(20) not null,
+   delete_type          smallint not null default 0 comment '(0:正常，1:删除)',
+   station_type         smallint not null,
+   longitude            decimal(10,6),
+   latitude             decimal(10,6),
+   primary key (station_id)
+);
+
+alter table station comment '站点(站点id、类型id、站点名称、经度、纬度)';
+
+/*==============================================================*/
+/* Table: station_passenger                                     */
+/*==============================================================*/
+create table station_passenger
+(
+   station_id           int,
+   passenger_id         int,
+   timestamp            timestamp
+);
+
+/*==============================================================*/
+/* Table: user                                                  */
+/*==============================================================*/
+create table user
+(
+   user_id              int not null auto_increment comment '用户编号',
+   phone                char(11) not null comment '电话',
+   user_name            varchar(20) not null comment '用户名',
+   email                varchar(50),
+   password             char(32) not null comment '密码',
+   delete_type          smallint not null default 0 comment '(0:正常，1:删除)',
+   sex                  int not null comment '性别（0女，1男）',
+   head_img             varchar(200) comment '头像',
+   address              varchar(100),
+   born_date            date not null comment '出生日期',
+   longitude            decimal(10,6),
+   latitude             decimal(10,6),
+   primary key (user_id),
+   unique key AK_Key_2 (user_name)
+);
+
+alter table user comment '用户（电话、用户id、用户名、密码、删除类型、邮箱、性别、头像、家庭住址、经度、 纬度、出生日期）  ';
+
+/*==============================================================*/
+/* Table: user_bus                                              */
+/*==============================================================*/
+create table user_bus
+(
+   user_id              int comment '用户编号',
+   bus_id               int,
+   timestamp            timestamp
+);
+
+/*==============================================================*/
+/* Table: user_passenger                                        */
+/*==============================================================*/
+create table user_passenger
+(
+   user_id              int comment '用户编号',
+   passenger_id         int,
+   timestamp            timestamp
+);
+
+/*==============================================================*/
+/* Table: user_station                                          */
+/*==============================================================*/
+create table user_station
+(
+   user_id              int comment '用户编号',
+   station_id           int,
+   timestamp            timestamp
+);
+
+alter table admin add constraint FK_Reference_1 foreign key (user_id)
+      references user (user_id) on delete restrict on update restrict;
+
+alter table bus add constraint FK_Reference_12 foreign key (route_id)
+      references route (route_id) on delete restrict on update restrict;
+
+alter table bus add constraint FK_Reference_15 foreign key (user_id)
+      references user (user_id) on delete restrict on update restrict;
+
+alter table bus_passenger add constraint FK_Reference_8 foreign key (bus_id)
+      references bus (bus_id) on delete restrict on update restrict;
+
+alter table bus_passenger add constraint FK_Reference_9 foreign key (passenger_id)
+      references passenger (passenger_id) on delete restrict on update restrict;
+
+alter table route_station add constraint FK_Reference_13 foreign key (route_id)
+      references route (route_id) on delete restrict on update restrict;
+
+alter table route_station add constraint FK_Reference_14 foreign key (station_id)
+      references station (station_id) on delete restrict on update restrict;
+
+alter table station_passenger add constraint FK_Reference_10 foreign key (station_id)
+      references station (station_id) on delete restrict on update restrict;
+
+alter table station_passenger add constraint FK_Reference_11 foreign key (passenger_id)
+      references passenger (passenger_id) on delete restrict on update restrict;
+
+alter table user_bus add constraint FK_Reference_2 foreign key (user_id)
+      references user (user_id) on delete restrict on update restrict;
+
+alter table user_bus add constraint FK_Reference_3 foreign key (bus_id)
+      references bus (bus_id) on delete restrict on update restrict;
+
+alter table user_passenger add constraint FK_Reference_4 foreign key (user_id)
+      references user (user_id) on delete restrict on update restrict;
+
+alter table user_passenger add constraint FK_Reference_5 foreign key (passenger_id)
+      references passenger (passenger_id) on delete restrict on update restrict;
+
+alter table user_station add constraint FK_Reference_6 foreign key (user_id)
+      references user (user_id) on delete restrict on update restrict;
+
+alter table user_station add constraint FK_Reference_7 foreign key (station_id)
+      references station (station_id) on delete restrict on update restrict;
