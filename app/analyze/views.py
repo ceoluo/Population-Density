@@ -11,7 +11,7 @@ from ..models import *
 
 
 @analyze.route("/")
-def analyze():
+def index():
     '''
     1、与后台协商完成数据的分析
     2、分析后的信息的可视化

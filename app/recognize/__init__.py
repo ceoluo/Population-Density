@@ -12,4 +12,4 @@ from flask import Blueprint
 # 构建蓝图程序
 recognize = Blueprint("recognize", __name__)
 # 导入当前包的路由和视图函数
-from . import views
+from . import views, error

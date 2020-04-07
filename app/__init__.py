@@ -30,7 +30,7 @@ def create_app():
     # 获取项目路径
     BASE_DIR = os.path.dirname(__file__)
     # app目录路径
-    APP_DIR = os.path.join(BASE_DIR, 'app')
+    # APP_DIR = os.path.join(BASE_DIR, 'app')
     # 静态资源目录路径
     STATIC_DIR = os.path.join(BASE_DIR, 'static')
     # 模板目录路径
@@ -42,7 +42,7 @@ def create_app():
     # 将SQLALCHWMY的追踪对象的修改设置为False
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # 以URL的格式配置数据库的连接
-    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:lx201091@127.0.0.1:3306/Population-Density"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:Hello@world@123.57.55.107:3306/PopulationDensity"
     # 配置session所需要的秘钥
     app.config["SECRET_KEY"] = "passwordkey"
     # 查询时在控制台打印出原始SQL语句

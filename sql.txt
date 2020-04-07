@@ -1,4 +1,4 @@
-drop table if exists admin;
+﻿drop table if exists admin;
 
 drop table if exists bus;
 
@@ -27,8 +27,10 @@ drop table if exists user_station;
 /*==============================================================*/
 create table admin
 (
+   admin_id             int not null auto_increment,
    user_id              int comment '用户编号',
-   delete_type          smallint not null default 0 comment '(0:正常，1:删除)'
+   delete_type          smallint not null default 0 comment '(0:正常，1:删除)',
+   primary key (admin_id)
 );
 
 /*==============================================================*/
@@ -54,9 +56,11 @@ alter table bus comment '公交车（公交车id、公交车类型、准载客�
 /*==============================================================*/
 create table bus_passenger
 (
+   bus_passenger_id     int not null auto_increment,
    bus_id               int,
    passenger_id         int,
-   timestamp            timestamp
+   timestamp            timestamp,
+   primary key (bus_passenger_id)
 );
 
 /*==============================================================*/
@@ -74,6 +78,8 @@ create table passenger
    is_lipstick          tinyint,
    face_expression      smallint,
    future_matrix        text,
+   face_landmark        text,
+   picture_name         varchar(50),
    primary key (passenger_id)
 );
 
@@ -84,7 +90,7 @@ alter table passenger comment '乘客（乘客id、性别、年龄段、是否�
 /*==============================================================*/
 create table route
 (
-   route_id             int not null,
+   route_id             int not null auto_increment,
    route_name           char(20),
    primary key (route_id)
 );
@@ -94,9 +100,11 @@ create table route
 /*==============================================================*/
 create table route_station
 (
+   route_station_id     int not null auto_increment,
    route_id             int,
    station_id           int,
-   "order"              smallint
+   station_order        smallint default 0,
+   primary key (route_station_id)
 );
 
 /*==============================================================*/
@@ -120,9 +128,11 @@ alter table station comment '站点(站点id、类型id、站点名称、经度�
 /*==============================================================*/
 create table station_passenger
 (
+   station_passenger_id int not null auto_increment,
    station_id           int,
    passenger_id         int,
-   timestamp            timestamp
+   timestamp            timestamp,
+   primary key (station_passenger_id)
 );
 
 /*==============================================================*/
@@ -132,7 +142,7 @@ create table user
 (
    user_id              int not null auto_increment comment '用户编号',
    phone                char(11) not null comment '电话',
-   user_name            varchar(20) not null comment '用户名',
+   user_name            varchar(11) not null comment '用户名',
    email                varchar(50),
    password             char(32) not null comment '密码',
    delete_type          smallint not null default 0 comment '(0:正常，1:删除)',
@@ -142,8 +152,9 @@ create table user
    born_date            date not null comment '出生日期',
    longitude            decimal(10,6),
    latitude             decimal(10,6),
+   production           varchar(500),
    primary key (user_id),
-   unique key AK_Key_2 (user_name)
+   unique key AK_Key_2 (phone, user_name)
 );
 
 alter table user comment '用户（电话、用户id、用户名、密码、删除类型、邮箱、性别、头像、家庭住址、经度、 纬度、出生日期）  ';
@@ -153,9 +164,11 @@ alter table user comment '用户（电话、用户id、用户名、密码、删�
 /*==============================================================*/
 create table user_bus
 (
+   user_bus_id          int not null auto_increment,
    user_id              int comment '用户编号',
    bus_id               int,
-   timestamp            timestamp
+   timestamp            timestamp,
+   primary key (user_bus_id)
 );
 
 /*==============================================================*/
@@ -163,9 +176,11 @@ create table user_bus
 /*==============================================================*/
 create table user_passenger
 (
+   user_passenger_id    int not null auto_increment,
    user_id              int comment '用户编号',
    passenger_id         int,
-   timestamp            timestamp
+   timestamp            timestamp,
+   primary key (user_passenger_id)
 );
 
 /*==============================================================*/
@@ -173,9 +188,11 @@ create table user_passenger
 /*==============================================================*/
 create table user_station
 (
+   user_station_id      int not null auto_increment,
    user_id              int comment '用户编号',
    station_id           int,
-   timestamp            timestamp
+   timestamp            timestamp,
+   primary key (user_station_id)
 );
 
 alter table admin add constraint FK_Reference_1 foreign key (user_id)

@@ -13,7 +13,7 @@ from ..models import *
 
 
 @main.route("/")
-def main():
+def index():
     '''
     1、完成用户登录注册功能
     2、完成数据汇总、存储
