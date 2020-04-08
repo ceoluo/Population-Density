@@ -1,4 +1,4 @@
-# !/usr/bin/env python
+﻿# !/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Time   :  2020/1/8 14:34
 # Author :  Richard
@@ -42,7 +42,7 @@ def create_app():
     # 将SQLALCHWMY的追踪对象的修改设置为False
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # 以URL的格式配置数据库的连接
-    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:Hello@world@123.57.55.107:3306/PopulationDensity"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:xxxxx@xxx.xx.xx.xxx:3306/PopulationDensity"
     # 配置session所需要的秘钥
     app.config["SECRET_KEY"] = "passwordkey"
     # 查询时在控制台打印出原始SQL语句
