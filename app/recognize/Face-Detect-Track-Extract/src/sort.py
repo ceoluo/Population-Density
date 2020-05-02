@@ -23,7 +23,7 @@ class Sort:
         self.trackers = []
         self.frame_count = 0
 
-    def update(self, dets, img_size, root_dic, addtional_attribute_list, predict_num,base_url,type_code,area_id):
+    def update(self, dets, img_size, root_dic, addtional_attribute_list, predict_num):
         """
         Params:
         dets - 是所有检测物的numpy array, 为[[x1,y1,x2,y2,score],...]形式.
@@ -66,7 +66,7 @@ class Sort:
                 trk.face_addtional_attribute.append(addtional_attribute_list[i])
                 # 调用接口传送
                 logger.info("new Tracker: {0}".format(trk.id + 1)) # trk.id从零开始计数
-                utils.save_to_file(root_dic, trk, base_url, type_code, area_id)
+                utils.save_to_file(trk)
                 # 将新创建的追踪器添加到所有追踪器集合中
                 self.trackers.append(trk)
 
@@ -80,8 +80,6 @@ class Sort:
             i -= 1
             # remove dead tracklet
             if trk.time_since_update >= self.max_age or trk.predict_num >= predict_num or d[2] < 0 or d[3] < 0 or d[0] > img_size[1] or d[1] > img_size[0]:
-                # if len(trk.face_addtional_attribute) >= 5:
-                #     utils.save_to_file(root_dic, trk)
                 logger.info('remove tracker: {0}'.format(trk.id + 1))
                 self.trackers.pop(i)
         if len(ret) > 0:

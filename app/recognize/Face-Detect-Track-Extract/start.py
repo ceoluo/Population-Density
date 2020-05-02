@@ -2,6 +2,9 @@ import argparse
 import os
 from time import time
 
+import requests
+from requests_toolbelt import MultipartEncoder
+
 import align.detect_face as detect_face
 import cv2
 import numpy as np
@@ -9,7 +12,7 @@ import tensorflow as tf
 from lib.face_utils import judge_side_face
 from lib.utils import Logger, mkdir
 # 获取项目根目录
-from project_root_dir import project_dir,base_url,type_code,area_id,base_url
+from project_root_dir import project_dir, base_url, post_scene_url, type_code, area_id
 from src.sort import Sort
 
 logger = Logger()
@@ -43,7 +46,7 @@ def main():
             # 创建人脸检测MTCNN的三个网络
             pnet, rnet, onet = detect_face.create_mtcnn(sess, os.path.join(project_dir, "align"))
             # 设置MTCNN能检测到的最小size的脸
-            minsize = 40
+            minsize = 40  # 40
             # 三个网络的人脸阈值
             threshold = [0.6, 0.7, 0.7]
             # 尺度因子
@@ -53,17 +56,21 @@ def main():
                 logger.info('所需要检测并追踪人脸的文件:{}'.format(filename))
             for filename in os.listdir(videos_dir):
                 suffix = filename.split('.')[1]
-                if suffix != 'mp4' and suffix != 'avi': # 可以设置过滤不同的文件格式
+                if suffix != 'mp4' and suffix != 'avi':  # 可以设置过滤不同的文件格式
                     continue
                 video_name = os.path.join(videos_dir, filename)
                 directoryname = os.path.join(output_path, filename.split('.')[0])
                 logger.info('当前检测的视频文件:{}'.format(video_name))
                 # 创建视频帧扑捉器，参数为文件路径或者0代表本地摄像头
                 cam = cv2.VideoCapture(video_name)
+                ret, frame = cam.read()
+                # 创建视频保存器
+                size = (frame.shape[1], frame.shape[0])
+                video_writer = cv2.VideoWriter("output/minisize_40_07.avi", cv2.VideoWriter_fourcc(*'DIVX'), 24, size)
                 # 记录已经读取到的帧数
                 c = 0
-                while True: # 循环读取整个视频文件的帧
-                    final_fces = []
+                while ret:  # 循环读取整个视频文件的帧
+                    final_faces = []
                     addtional_attribute_list = []
                     # ret表示有没有读取到帧true\false
                     ret, frame = cam.read()
@@ -87,10 +94,13 @@ def main():
                         img_size = np.asarray(frame.shape)[0:2]
                         # mtcnn开始检测的时间戳，用于计时
                         mtcnn_starttime = time()
+
                         # 使用MTCNN实施检测，返回检测到的所有可能为face的(x1,y1,x2,y2,score)和对应的landmark
-                        faces, points = detect_face.detect_face(r_g_b_frame, minsize, pnet, rnet, onet, threshold,factor)
+                        faces, points = detect_face.detect_face(r_g_b_frame, minsize, pnet, rnet, onet, threshold,
+                                                                factor)
                         logger.info("MTCNN检测人脸花费时间: {} s".format(round(time() - mtcnn_starttime, 3)))
                         face_sums = faces.shape[0]
+
                         # 如果检测到的脸大于0，将每张脸剪切出来，并进行侧脸评判
                         if face_sums > 0:
                             face_list = []
@@ -120,7 +130,7 @@ def main():
                                     for j in range(5):
                                         item = [tolist[j], tolist[(j + 5)]]
                                         facial_landmarks.append(item)
-                                        item_crap = [tolist[j]-bb_left, tolist[(j+5)]-bb_top]
+                                        item_crap = [tolist[j] - bb_left, tolist[(j + 5)] - bb_top]
                                         facial_landmarks_crap.append(item_crap)
                                     # 为脸画出标定点
                                     if args.face_landmarks:
@@ -129,14 +139,17 @@ def main():
                                     # 从帧中复制出人脸
                                     cropped = frame[bb[1]:bb[3], bb[0]:bb[2], :].copy()
                                     # 计算五个标定点的高宽比例，高均方差，宽均方差
-                                    dist_rate, high_ratio_variance, width_rate = judge_side_face(np.array(facial_landmarks))
+                                    dist_rate, high_ratio_variance, width_rate = judge_side_face(
+                                        np.array(facial_landmarks))
                                     # 整个视频中脸部附加属性addtional_attribute (index 0:face score; index 1:0代表正脸，1代表侧脸 )
-                                    item_list = [cropped, score, dist_rate, high_ratio_variance, width_rate,facial_landmarks_crap] ##### 添加参数facial_landmarks
+                                    item_list = [cropped, score, dist_rate, high_ratio_variance, width_rate,
+                                                 facial_landmarks_crap]  ##### 添加参数facial_landmarks
                                     addtional_attribute_list.append(item_list)
                             # 获取的每帧的face的score大于阈值的face
                             final_faces = np.array(face_list)
 
-                    trackers = tracker.update(final_faces, img_size, directoryname, addtional_attribute_list, detect_interval,base_url,type_code,area_id)
+                    trackers = tracker.update(final_faces, img_size, directoryname, addtional_attribute_list,
+                                              detect_interval)
 
                     c += 1
 
@@ -155,7 +168,12 @@ def main():
                                 cv2.putText(frame, 'ID : %d' % (d[4]), (d[0] - 10, d[1] - 10), cv2.FONT_HERSHEY_SIMPLEX,
                                             0.75,
                                             colours[d[4] % 32, :] * 255, 2)
-
+                        # video_writer.write(frame)
+                        data = {"type_code": type_code,
+                                "area_id": area_id}
+                        file = {"scene_img": ("scene_img.jpg", cv2.imencode(".jpg", frame)[1].tobytes(), "image/jpg")}
+                        res = requests.post(url=post_scene_url, files=file, data=data)
+                        logger.info("检测场景发送到服务器，响应码：{}".format(res))
                     if not no_display:
                         frame = cv2.resize(frame, (0, 0), fx=show_rate, fy=show_rate)
                         cv2.imshow("Frame", frame)
@@ -187,7 +205,7 @@ def parse_args():
                         help='The threshold of the extracted faces,range 0<x<=1',
                         type=float, default=0.85)
     parser.add_argument('--face_landmarks',
-                        help='Draw five face landmarks on extracted face or not ', action="store_false",default=False)
+                        help='Draw five face landmarks on extracted face or not ', action="store_false", default=False)
     parser.add_argument('--no_display',
                         help='Display or not', action='store_true')
     args = parser.parse_args()

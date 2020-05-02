@@ -16,10 +16,12 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import pymysql
 import os
+
 # 将pymysql注册为MySQL的驱动
 pymysql.install_as_MySQLdb()
 
 db = SQLAlchemy()
+
 
 # 创建app实例
 def create_app():
@@ -36,13 +38,13 @@ def create_app():
     # 模板目录路径
     TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
     # 定义app实例，绑定静态资源和模板路径
-    app = Flask(__name__, static_folder=STATIC_DIR,template_folder=TEMPLATES_DIR)
+    app = Flask(__name__, static_folder=STATIC_DIR, template_folder=TEMPLATES_DIR)
     # 配置启动模式为调试模式
     app.config["DEBUG"] = True
     # 将SQLALCHWMY的追踪对象的修改设置为False
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # 以URL的格式配置数据库的连接
-    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:xxxxx@xxx.xx.xx.xxx:3306/PopulationDensity"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:Hello@world@123.57.55.107:3306/PopulationDensity"
     # 配置session所需要的秘钥
     app.config["SECRET_KEY"] = "passwordkey"
     # 查询时在控制台打印出原始SQL语句
