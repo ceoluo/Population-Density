@@ -1,6 +1,0 @@
-numba
-scikit-learn
-opencv-python
-numpy
-filterpy
-tensorflow-gpu

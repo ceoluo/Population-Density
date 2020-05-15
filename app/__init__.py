@@ -40,7 +40,7 @@ def create_app():
     # 定义app实例，绑定静态资源和模板路径
     app = Flask(__name__, static_folder=STATIC_DIR, template_folder=TEMPLATES_DIR)
     # 配置启动模式为调试模式
-    app.config["DEBUG"] = True
+    app.config["DEBUG"] = False
     # 将SQLALCHWMY的追踪对象的修改设置为False
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # 以URL的格式配置数据库的连接
@@ -48,7 +48,7 @@ def create_app():
     # 配置session所需要的秘钥
     app.config["SECRET_KEY"] = "passwordkey"
     # 查询时在控制台打印出原始SQL语句
-    app.config['SQLALCHEMY_ECHO'] = True
+    app.config['SQLALCHEMY_ECHO'] = False
     # 返回数据支持中文
     app.config['JSON_AS_ASCII'] = False
     # 数据库的初始化

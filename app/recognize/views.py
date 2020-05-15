@@ -105,7 +105,7 @@ def add_bus():
 
 # 接受检测终端的数据，并生成时间戳保存到数据库
 @recognize.route("/save_face", methods=['post'])
-def save_detection():
+def save_face():
     # data = {"type_code": type_code, "area_id": area_id, "land_mark": land_mark, "face_img": face_img}
     # 获取时间戳
     # t = time.time()*1000
